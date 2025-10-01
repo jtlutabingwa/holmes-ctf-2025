@@ -30,7 +30,6 @@ Out of 7,085 teams worldwide, our team placed 634th overall, finishing in the to
 
 
 This competition was an incredible opportunity to apply classroom knowledge of cybersecurity to real-world scenarios involving SOC operations,
-
 DFIR, malware reversing, and threat intelligence. With limited preparation resources available, we focused on teamwork, adaptability, and problem-solving under pressure.
 
 **Key takeaways:**
@@ -81,3 +80,5 @@ So, we are just as confused about why he’d mention WATSON now, but you never c
 Head out into the field and assist him in finding out what’s going on. We are counting on your detectives.  
 
 --- 
+
+![Certificate - Sherlock's Homies](images/HolmesCTF2025Certificate.png)
