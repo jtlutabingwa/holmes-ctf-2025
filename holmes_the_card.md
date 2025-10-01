@@ -3,9 +3,9 @@
 **Author:** Jonathan Lutabingwa ([@jlutabin](https://github.com/jlutabin))
 
 **Team:** Sherlock's Homies
+- [Jonathan Lutabingwa](https://www.linkedin.com/in/jonathan-lutabingwa/)  
 - [Benjamin Taylor](https://www.linkedin.com/in/btayl106/)  
 - [Greyson Brummer](https://www.linkedin.com/in/greyson-brummer-b82119301/)  
-- [Jonathan Lutabingwa](https://www.linkedin.com/in/jonathan-lutabingwa/)  
 - [Lansina Diakite](https://www.linkedin.com/in/lansina-diakite-7a673b202/)  
 - [Shaunak Peri](https://www.linkedin.com/in/shaunak-peri-315744245/)
 
