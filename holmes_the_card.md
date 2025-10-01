@@ -244,7 +244,7 @@
 **Walkthrough:** 
 - The answer to this flag is right above the number of open ports from the previous question.<br>
 
-![Campaign Graph Entities](card_images/tc-task12.png)
+![Campaign Graph Entities](card_images/tc-task11.png)
 - As you can see in the image, under the "Network Information" section, there is a list of information pertaining to this target.
 - This information contains Location, ISP, Organization, and Coordinates.
 - We want to find the organization for this question, which is listed in this section as `SenseShield MSP`.
@@ -267,7 +267,7 @@
 - Scrolling through the services provided, I found one that stood out: `7477/tcp`.
 - This was an unknown service with an unknown version, running on Port 7477 and using TCP protocol.
 
-![Suspicious Banner](card_images/tc-task11.png)
+![Suspicious Banner](card_images/tc-task12.png)
 - This seemed to be it. The Service Banner displayed was: `He's a ghost I carry, not to haunt me, but to hold me together - NULLINC REVENGE`.
 
 **Answer:** `He's a ghost I carry, not to haunt me, but to hold me together - NULLINC REVENGE`  
