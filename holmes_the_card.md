@@ -61,7 +61,7 @@
 **Walkthrough:** 
 - To find Flag 2, it is another case of looking through the logs.
 - Since this question references the WAF, I naturally figured it would be best to look through `waf.log`
-- A simple `CTRL + F` command searching for "WAF" allowed me to specify which lines contained any information about WAFs, so I started by going line-by-line (as this was a relatively small file).
+- A simple `CTRL + F` command searching for "WAF" allowed me to specify which lines contained any information about WAFs, so I started by going line-by-line (as - - this was a relatively small file).
 - On `2025-05-15 11:25:01` the logs show a "CRITICAL" alert, with a "BYPASS" action (exactly what we are looking for). This line specifies a "Web shell creation detected", so I knew I was on the right track.
 - The following line, at `2025-05-15 11:25:12`, another "BYPASS" action takes place. This log specifies a PHP web shell created, with the name `temp_4A4D.php`. This is the flag for our question.
 
@@ -82,7 +82,7 @@
 - We continued searching in waf.log for signs of data exfiltration and found a rule labeled "DATA_EXFILTRATION" at 2025-05-15 11:24:34.
 
 
--The entry showed an "Unknown Error," so we cross-checked application.log at the same timestamp, which reported:
+- The entry showed an "Unknown Error," so we cross-checked application.log at the same timestamp, which reported:
 - 2025-05-15 11:24:34 Data exfiltration attempt from 121.36.37.224
 
 
@@ -112,17 +112,19 @@ The logs confirm the attacker exfiltrated a 52 MB SQL dump.
 
 **Question:** During the attack, a seemingly meaningless string seems to be recurring. Which one is it?  
 
-**Walkthrough:** 
-- To find the 4th Flag, I moved into my terminal to make the search easier.
-- From the first flag, one string stood out to me. When looking for the "first User-Agent", the solution `Lilnunc/4A4D - SpecterEye` contains the string `4A4D`. This string also appeared in the database dump from the last question, etc.
-- I searched across all of the logs to find anything that wasn't a typical path, header, or filename using the command:
-- `Select-String -Path .\access.log, .\application.log, .\waf.log -Pattern "4A4D" | Format-Table Filename, LineNumber, Line -AutoSize`
-- This search query organized and specified each instance of this unfamiliar string, and proved that it showed up in many situations throughout the attack:
-1. *User-Agent: `Lilnunc/4A4D - SpecterEye`*
-2. *Web shell: `temp_4A4D.php`*
-3. *DB dump: `database_dump_4A4D.sql`*
-4. *Backup: `backup_2025_4A4D.tar.gz`*
-5. *Downloader UA: `4A4D RetrieveR/1.0.0`*
+**Walkthrough:**  
+- We searched the logs for anything unusual.  
+- From Flag 1, the User-Agent `Lilnunc/4A4D - SpecterEye` stood out and `4A4D` also appeared in the DB dump.  
+- We ran a cross-log PowerShell search:  
+  - ```powershell
+    Select-String -Path .\access.log, .\application.log, .\waf.log -Pattern "4A4D" | Format-Table Filename, LineNumber, Line -AutoSize
+    ```  
+- The `4A4D` string appears in multiple places:  
+  1. User-Agent: `Lilnunc/4A4D - SpecterEye`  
+  2. Web shell: `temp_4A4D.php`  
+  3. DB dump: `database_dump_4A4D.sql`  
+  4. Backup: `backup_2025_4A4D.tar.gz`  
+  5. Downloader UA: `4A4D RetrieveR/1.0.0`  
 
 ![Meaningless String](card_images/tc-task4-logs.png)
 -  Funnily enough, the flag for this question happens to be `4A4D`.
@@ -135,14 +137,12 @@ The logs confirm the attacker exfiltrated a 52 MB SQL dump.
 
 **Question:** OmniYard-3 … count how many campaigns appear to be linked to the honeypot attack.  
 
-**Walkthrough:** 
-- To find the 5th Flag, we navigated to the designated `IP: port` that was given. 
-- Upon opening the `IP: port` in the browser, we were met with a "CogWork-Intel Graph".
-- This graph contained 63 entities and 7 different types.<br>
+**Walkthrough:**  
+- We opened the provided `IP: port` and viewed the CogWork-Intel Graph.  
+- The graph showed 63 entities and 7 types.  
+- One central node had several campaign sub-nodes; counting those connected sub-nodes gave us **5** linked campaigns.  
 
-![Campaign Graph](card_images/task-5-chart.png)
-- From this graph, we can see that there is one central node with 5 different sub-nodes stemming from it. We can assume this is the specified honeypot attack.
-- Based on this, the answer to this flag is `5`.
+![Campaign Graph](card_images/task-5-chart.png)  
 
 **Answer:** `5`  
 
@@ -152,14 +152,14 @@ The logs confirm the attacker exfiltrated a 52 MB SQL dump.
 
 **Question:** How many tools and malware in total are linked to the previously identified campaigns?  
 
-**Walkthrough:** 
-- The answer to this flag lies within the same graph that we used for the previous question.<br>
+**Walkthrough:**  
+- We focused on the 5 campaigns around the honeypot in the CogWork-Intel Graph.  
+- From the entity legend, we identified and counted entity types:  
+  - Tools: **4**  
+  - Malware: **5**  
+- Summing them: 4 + 5 = 9.  
 
-![Campaign Graph Entities](card_images/task-6-evidence.png)
-- As you can see in the image, there is an "Entity Types" legend that specifies the type of entities that are found in the graph.
-- The question is asking for "tools" and "malware" specifically.
-- If we zoom in on the campaigns surrounding the honeypot (5 campaigns in particular), we can count `4 tools` and `5 malware` used.
-- Adding these together, 4 + 5, gives us our flag: `9`.
+![Campaign Graph Entities](card_images/task-6-evidence.png)  
 
 **Answer:** `9`  
 
@@ -210,15 +210,11 @@ The logs confirm the attacker exfiltrated a 52 MB SQL dump.
 
 **Question:** What is the full path of the file that the malware created to ensure its persistence on systems?  
 
-**Walkthrough:** 
-- Continuing off of the previous question, the flag for this question is found right below the last answer.
-- The question is asking for the file path to ensure persistence on systems, and if we scroll down, we see a field titled "File Operations".
+**Walkthrough:**  
+- On the malware details page, we inspected **File Operations**.  
+- We located the `CREATE` operation whose filename included “persistence,” which identified the persistence path.  
 
-![File Operations](card_images/tc-task9.png)
-- In this section, there are two `CREATE` operations. The first of which has "persistence" in the name.
-- It is safe to assume that this is the correct file path for system persistence.
-- Therefore, the flag (and file path to ensure system persistence) is `/opt/lilnunc/implant/4a4d_persistence.sh`.
-
+![File Operations](card_images/tc-task9.png)  
 **Answer:** `/opt/lilnunc/implant/4a4d_persistence.sh`  
 
 ---
@@ -264,18 +260,16 @@ The logs confirm the attacker exfiltrated a 52 MB SQL dump.
 
 **Question:** One of the exposed services displays a banner containing a cryptic message. What is it?  
 
-**Walkthrough:** 
-- Using the same CogNet scan, we can find more information about this target.
-- I navigated to the "Services" tab on the top navigation pane, and was met with more details on some ports and services.
+**Walkthrough:**  
+- We checked the CogNet scan results, navigated to **Services**, and scanned banners for anomalies.  
+- On port `7477/tcp` we found a suspicious banner containing the cryptic message shown below.  
 
-![Services Tab](card_images/tc-task12-services.png)
-- This question is asking for a banner containing a cryptic message, so my thought process was to scroll through until I found something weird or out of the ordinary.
-- Scrolling through the services provided, I found one that stood out: `7477/tcp`.
-- This was an unknown service with an unknown version, running on Port 7477 and using TCP protocol.
-
+![Suspicious Banner](card_images/tc-task12.png)  
 ![Suspicious Banner](card_images/tc-task12.png)
 - This seemed to be it. The Service Banner displayed was: `He's a ghost I carry, not to haunt me, but to hold me together - NULLINC REVENGE`.
 
 **Answer:** `He's a ghost I carry, not to haunt me, but to hold me together - NULLINC REVENGE`  
 
 ---
+
+**Next challenge writeup:** [Holmes — The Watchman's Residue 👮](./holmes_watchmans_residue.md)
