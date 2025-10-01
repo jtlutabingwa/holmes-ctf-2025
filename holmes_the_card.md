@@ -1,4 +1,4 @@
-# Hack The Box: Holmes-CTF-2025 (09/22/25 - 09/26/25)
+# Holmes CTF 2025: The Card
 
 **Author:** Jonathan Lutabingwa ([@jtlutabingwa](https://github.com/jlutabin))
 
