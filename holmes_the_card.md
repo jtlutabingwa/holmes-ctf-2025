@@ -2,24 +2,24 @@
 
 **Author:** Jonathan Lutabingwa ([@jlutabin](https://github.com/jlutabin))
 
-**🤝 Team:** Sherlock's Homies
+**Team:** Sherlock's Homies
 - [Benjamin Taylor](https://www.linkedin.com/in/btayl106/)  
 - [Greyson Brummer](https://www.linkedin.com/in/greyson-brummer-b82119301/)  
 - [Jonathan Lutabingwa](https://www.linkedin.com/in/jonathan-lutabingwa/)  
 - [Lansina Diakite](https://www.linkedin.com/in/lansina-diakite-7a673b202/)  
 - [Shaunak Peri](https://www.linkedin.com/in/shaunak-peri-315744245/)
 
-**🏆 Ranking**: 634 / 7,085 teams
+**Ranking**: 634 / 7,085 teams
 
-**📝 Prompt:** Holmes receives a breadcrumb from Dr. Nicole Vale - fragments from a string of cyber incidents across Cogwork-1. Each lead ends the same way: a digital calling card signed JM.
+**Prompt:** Holmes receives a breadcrumb from Dr. Nicole Vale - fragments from a string of cyber incidents across Cogwork-1. Each lead ends the same way: a digital calling card signed JM.
 
-**📌 Summary:** Multi-stage web attack against Nicole Vale’s honeypot attributed to actor “JM”: initial reconnaissance (distinct User-Agent), WAF bypass with web shell deployment, database exfiltration, malware persistence, and infrastructure mapping via Cogwork platforms.
+**Summary:** Multi-stage web attack against Nicole Vale’s honeypot attributed to actor “JM”: initial reconnaissance (distinct User-Agent), WAF bypass with web shell deployment, database exfiltration, malware persistence, and infrastructure mapping via Cogwork platforms.
 
 **🟩 Challenge Difficulty:** *EASY*
 
 ---
 
-## 📋 TL;DR (Answers)
+## TL;DR (Answers)
 
 - **User-Agent (first used):** `Lilnunc/4A4D - SpecterEye`
 - **Web shell filename:** `temp_4A4D.php`
@@ -42,9 +42,9 @@
 
 **Walkthrough:** 
 - To find Flag 1, we were asked to look through the logs given to find the "first User-Agent" used by the attacker against the honeypot.
-- This task seemed quite simple, and once I downloaded the logs from the given "Scenario Files" section, I opened the log titled "access.log".
+- This task was simple, and once the logs were downloaded from the provided "Scenario Files" section, we opened the log titled "access.log".
 - Looking at line 1, we can see that the attacker used User-Agent `Lilnunc/4A4D - SpecterEye`.
-- Therefore, the value for flag 1 is: `Lilnunc/4A4D - SpecterEye`
+- We can deduce that the value for flag 1 is: `Lilnunc/4A4D - SpecterEye`
 
 ![First User Agent](card_images/tc-task1.png)
 **Solution Line of `access.log`:** 
@@ -118,7 +118,7 @@
 4. *Backup: `backup_2025_4A4D.tar.gz`*
 5. *Downloader UA: `4A4D RetrieveR/1.0.0`*
 
-![Meaningless String](card_images/tc-task3-evidence.png)
+![Meaningless String](card_images/tc-task4-logs.png)
 -  Funnily enough, the flag for this question happens to be `4A4D`.
 
 **Answer:** `4A4D`  
@@ -130,11 +130,11 @@
 **Question:** OmniYard-3 … count how many campaigns appear to be linked to the honeypot attack.  
 
 **Walkthrough:** 
-- To find the 5th Flag, we navigated to the designated `IP:port` that was given. 
-- Upon opening the `IP:port` in the browser, we were met with a "CogWork-Intel Graph".
+- To find the 5th Flag, we navigated to the designated `IP: port` that was given. 
+- Upon opening the `IP: port` in the browser, we were met with a "CogWork-Intel Graph".
 - This graph contained 63 entities and 7 different types.<br>
 
-![Campaign Graph](card_images/tc-task4-logs.png)
+![Campaign Graph](card_images/task-5-chart.png)
 - From this graph, we can see that there is one central node with 5 different sub-nodes stemming from it. We can assume this is the specified honeypot attack.
 - Based on this, the answer to this flag is `5`.
 
@@ -149,7 +149,7 @@
 **Walkthrough:** 
 - The answer to this flag lies within the same graph that we used for the previous question.<br>
 
-![Campaign Graph Entities](card_images/tc-task6.png)
+![Campaign Graph Entities](card_images/task-6-evidence.png)
 - As you can see in the image, there is an "Entity Types" legend that specifies the type of entities that are found in the graph.
 - The question is asking for "tools" and "malware" specifically.
 - If we zoom in on the campaigns surrounding the honeypot (5 campaigns in particular), we can count `4 tools` and `5 malware` used.
@@ -186,14 +186,14 @@
 
 **Walkthrough:** 
 - Now that we have the SHA-256 value from the previous flag, we are tasked with locating the IP address to which the malware connects.
-- On the "CogWork Security" website that the new `IP:port` took us to, we `CTRL + C` the SHA-256 and then `CTRL + V` into the search query box.
+- On the "CogWork Security" website that the new `IP: port` took us to, we `CTRL + C` the SHA-256 and then `CTRL + V` into the search query box.
 
 ![Search Query SHA-256](card_images/tc-task8-hash-lookup.png)
 - We can see here that this is not only a `Malicious` threat, but the filename also matches the `4A4D` pattern that we have been seeing throughout this activity. This means it is most definitely the correct file.
 - Clicking "View Details" takes us to a more specific breakdown of the file:
 
 ![View Details SHA-256](card_images/tc-task8.png)
-- We can see here that an HTTPS IP address is given, and after submission we find out this is the correct value.
+- We can see here that an HTTPS IP address is given, and after submission, we find out that  this is the correct value.
 - Therefore, the flag (and IP address to which the malware connects) is `74.77.74.77`.
 
 **Answer:** `74.77.74.77`  
@@ -206,7 +206,7 @@
 
 **Walkthrough:** 
 - Continuing off of the previous question, the flag for this question is found right below the last answer.
-- The question is asking for the file path to ensure persistence on systems, and if we scroll down we see a field titled "File Operations".
+- The question is asking for the file path to ensure persistence on systems, and if we scroll down, we see a field titled "File Operations".
 
 ![File Operations](card_images/tc-task9.png)
 - In this section, there are two `CREATE` operations. The first of which has "persistence" in the name.
@@ -222,7 +222,7 @@
 **Question:** CogNet Scanner — how many open ports does the server have?  
 
 **Walkthrough:** 
-- For this task, we are given a third and final `IP:port` address and told to use the CogNet Scanner Platform to find more details about the infrastructure of the TA.
+- For this task, we are given a third and final `IP: port` address and told to use the CogNet Scanner Platform to find more details about the infrastructure of the TA.
 
 ![CogNet Scanner](card_images/task-10-search.png)
 - Searching the CogNet Scanner Platform with the IP address we found in a previous flag, `74.77.74.77`, returns one single result.
@@ -245,7 +245,7 @@
 - The answer to this flag is right above the number of open ports from the previous question.<br>
 
 ![Campaign Graph Entities](card_images/tc-task12.png)
-- As you can see in the image, under the "Network Information" section, there is a list of information pertaining this target.
+- As you can see in the image, under the "Network Information" section, there is a list of information pertaining to this target.
 - This information contains Location, ISP, Organization, and Coordinates.
 - We want to find the organization for this question, which is listed in this section as `SenseShield MSP`.
 - Therefore, the flag (and organization) is `SenseShield MSP`.
