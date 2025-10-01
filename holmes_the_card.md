@@ -65,7 +65,7 @@
 - On `2025-05-15 11:25:01` the logs show a "CRITICAL" alert, with a "BYPASS" action (exactly what we are looking for). This line specifies a "Web shell creation detected", so I knew I was on the right track.
 - The following line, at `2025-05-15 11:25:12`, another "BYPASS" action takes place. This log specifies a PHP web shell created, with the name `temp_4A4D.php`. This is the flag for our question.
 
-![WAF](card_images/tc-task-2.png)
+![WAF](card_images/tc-task2.png)
 **Solution Line of `waf.log`:** 
 - `2025-05-15 11:25:12 [CRITICAL] waf.exec - IP 121.36.37.224 - Rule: WEBSHELL_DEPLOYMENT - Action: BYPASS - PHP web shell temp_4A4D.php created`
 
@@ -94,7 +94,7 @@
 - In this last line, we can see that there was a 52 MB `.sql` file downloaded.
 - This correlates with the exfiltration, giving us the flag and name of the database file: `database_dump_4A4D.sql`.
 
-![Exfiltration Database](card_images/tc-task-3.png)
+![Exfiltration Database](card_images/tc-task3.png)
 **Solution Line of `access.log`:** 
 - `2025-05-18 14:58:23 121.36.37.224 - - [18/May/2025:15:58:23 +0000] "GET /uploads/database_dump_4A4D.sql HTTP/1.1" 200 52428800 "-" "4A4D RetrieveR/1.0.0"`
 
@@ -134,7 +134,7 @@
 - Upon opening the `IP:port` in the browser, we were met with a "CogWork-Intel Graph".
 - This graph contained 63 entities and 7 different types.<br>
 
-![Campaign Graph](card_images/tc-task4.png)
+![Campaign Graph](card_images/tc-task4-logs.png)
 - From this graph, we can see that there is one central node with 5 different sub-nodes stemming from it. We can assume this is the specified honeypot attack.
 - Based on this, the answer to this flag is `5`.
 
@@ -149,7 +149,7 @@
 **Walkthrough:** 
 - The answer to this flag lies within the same graph that we used for the previous question.<br>
 
-![Campaign Graph Entities](card_images/task-6-evidence.png)
+![Campaign Graph Entities](card_images/tc-task6.png)
 - As you can see in the image, there is an "Entity Types" legend that specifies the type of entities that are found in the graph.
 - The question is asking for "tools" and "malware" specifically.
 - If we zoom in on the campaigns surrounding the honeypot (5 campaigns in particular), we can count `4 tools` and `5 malware` used.
@@ -244,7 +244,7 @@
 **Walkthrough:** 
 - The answer to this flag is right above the number of open ports from the previous question.<br>
 
-![Campaign Graph Entities](card_images/tc-task11.png)
+![Campaign Graph Entities](card_images/tc-task12.png)
 - As you can see in the image, under the "Network Information" section, there is a list of information pertaining this target.
 - This information contains Location, ISP, Organization, and Coordinates.
 - We want to find the organization for this question, which is listed in this section as `SenseShield MSP`.
@@ -267,7 +267,7 @@
 - Scrolling through the services provided, I found one that stood out: `7477/tcp`.
 - This was an unknown service with an unknown version, running on Port 7477 and using TCP protocol.
 
-![Suspicious Banner](card_images/tc-task12.png)
+![Suspicious Banner](card_images/tc-task11.png)
 - This seemed to be it. The Service Banner displayed was: `He's a ghost I carry, not to haunt me, but to hold me together - NULLINC REVENGE`.
 
 **Answer:** `He's a ghost I carry, not to haunt me, but to hold me together - NULLINC REVENGE`  
