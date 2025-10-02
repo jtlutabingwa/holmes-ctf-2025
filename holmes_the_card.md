@@ -11,7 +11,7 @@
 
 ---
 
-**📋 Table of Contents**:
+**Table of Contents**:
 - 🟩 ["The Card"](./holmes_the_card.md)
 - 🟨 ["The Watchman's Residue"](./holmes_watchmans_residue.md)
 - 🟩 ["The Enduring Echo"](./holmes_enduring_echo.md)
