@@ -296,3 +296,6 @@ Event ID **4719** (System audit policy change) indicated that an audit policy mo
 ```cmd
 reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\Audit" /v ProcessCreationIncludeCmdLine_Enabled /t REG_DWORD /d 1 /f
 
+---
+
+**Next challenge writeup:** [Holmes — The Tunnel Without Walls](./holmes_the_tunnel_without_walls.md)
