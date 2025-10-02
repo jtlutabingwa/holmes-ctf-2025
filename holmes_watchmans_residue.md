@@ -358,4 +358,4 @@ This was one of my favorite flags to solve because it felt like a real pivot mom
 
 ---
 
-**Next challenge writeup:** [Holmes — The Enduring Echo 🔊](./holmes_enduring_echo.md)
+**Next challenge writeup:** [Holmes — The Enduring Echo](./holmes_enduring_echo.md)
