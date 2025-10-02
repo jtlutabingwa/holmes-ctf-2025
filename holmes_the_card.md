@@ -1,4 +1,4 @@
-# Holmes CTF 2025: The Card
+# Holmes CTF 2025: *The Card*
 
 **Author:** Jonathan Lutabingwa ([@jtlutabingwa](https://github.com/jlutabin))
 
@@ -37,7 +37,6 @@
 
 ## The Watchman's Residue — Detailed Writeup (with images)
 
-A clear, ready-to-paste Markdown writeup of the investigation described in *The Watchman's Residue* challenge. Each flag includes a short context, a slightly expanded explanation (concise but informative), the key log/solution line when applicable, an image that documents the find, and the final answer.
 
 ---
 
@@ -52,6 +51,7 @@ A clear, ready-to-paste Markdown writeup of the investigation described in *The 
 **Solution line (from `access.log`):**  
 `2025-05-01 08:23:12 121.36.37.224 - - [01/May/2025:08:23:12 +0000] "GET /robots.txt HTTP/1.1" 200 847 "-" "Lilnunc/4A4D - SpecterEye"`
 
+**Picture:**  
 ![First User Agent](card_images/tc-task1.png)
 
 **Answer:** `Lilnunc/4A4D - SpecterEye`
@@ -69,6 +69,7 @@ A clear, ready-to-paste Markdown writeup of the investigation described in *The 
 **Solution line (from `waf.log`):**  
 `2025-05-15 11:25:12 [CRITICAL] waf.exec - IP 121.36.37.224 - Rule: WEBSHELL_DEPLOYMENT - Action: BYPASS - PHP web shell temp_4A4D.php created`
 
+**Picture:**  
 ![WAF](card_images/tc-task2.png)
 
 **Answer:** `temp_4A4D.php`
@@ -86,6 +87,7 @@ A clear, ready-to-paste Markdown writeup of the investigation described in *The 
 **Solution line (from `access.log`):**  
 `2025-05-18 14:58:23 121.36.37.224 - - [18/May/2025:15:58:23 +0000] "GET /uploads/database_dump_4A4D.sql HTTP/1.1" 200 52428800 "-" "4A4D RetrieveR/1.0.0"`
 
+**Picture:**  
 ![Exfiltration Database](card_images/tc-task3.png)
 
 **Answer:** `database_dump_4A4D.sql`
@@ -100,6 +102,7 @@ A clear, ready-to-paste Markdown writeup of the investigation described in *The 
 
 **Explanation:** I searched all logs for the short token `4A4D` and found it in multiple distinct contexts: the initial User-Agent, the web shell filename, the SQL dump filename, a backup tarball name, and even in a downloader User-Agent. The repetition across different artifact types (UA, filenames, backups, downloader strings) makes `4A4D` a reliable campaign marker and the correct answer.
 
+**Picture:**  
 ![Meaningless String](card_images/tc-task4-logs.png)
 
 **Answer:** `4A4D`
@@ -114,6 +117,7 @@ A clear, ready-to-paste Markdown writeup of the investigation described in *The 
 
 **Explanation:** Using the provided `IP:port` feed into the CogWork-Intel graph, I inspected the cluster around the honeypot-linked indicator. The graph displayed several campaign sub-nodes attached to the central actor node. Counting the directly connected campaign nodes (those explicitly labeled as campaigns) yields the total linked campaigns.
 
+**Picture:**  
 ![Campaign Graph](card_images/task-5-chart.png)
 
 **Answer:** `5`
@@ -128,6 +132,7 @@ A clear, ready-to-paste Markdown writeup of the investigation described in *The 
 
 **Explanation:** I expanded the five campaign nodes and tallied the entities labeled as *Tools* and *Malware*. The catalogued breakdown showed 4 tool entities and 5 malware entities tied to those campaigns; summing both categories produces the total number of offensive artifacts associated with the actor.
 
+**Picture:**  
 ![Campaign Graph Entities](card_images/task-6-evidence.png)
 
 **Answer:** `9`
@@ -142,6 +147,7 @@ A clear, ready-to-paste Markdown writeup of the investigation described in *The 
 
 **Explanation:** I followed the indicator entity related to the `4A4D` artifact family to its details page. The indicator’s pattern section included the canonical file hash used to uniquely identify the malware. This value corresponds to the persistent sample seen in multiple campaign linkages.
 
+**Picture:**  
 ![Indicator Hash](card_images/tc-task7.png)
 
 **Answer:** `7477c4f5e6d7c8b9a0f1e2d3c4b5a6f7e8d9c0b1a2f3e4d5c6b7a8f9e0d17477`
@@ -156,6 +162,7 @@ A clear, ready-to-paste Markdown writeup of the investigation described in *The 
 
 **Explanation:** I pasted the SHA-256 into the CogWork Security search and opened the malware detail page. The enrichment data included observed network callbacks for that sample; the platform listed the primary C2 host observed contacting the sample. That host is the address the malware has been observed to reach out to.
 
+**Pictures:**  
 ![Search Query SHA-256](card_images/tc-task8-hash-lookup.png)  
 ![View Details SHA-256](card_images/tc-task8.png)
 
@@ -171,6 +178,7 @@ A clear, ready-to-paste Markdown writeup of the investigation described in *The 
 
 **Explanation:** On the file-operations pane of the malware details, I filtered for `CREATE` operations and looked for filenames containing “persist” or similar. The entry showed the artifact written to a Linux-style location under `/opt/...`, which is a common persistence staging place for malicious implants.
 
+**Picture:**  
 ![File Operations](card_images/tc-task9.png)
 
 **Answer:** `/opt/lilnunc/implant/4a4d_persistence.sh`
@@ -185,6 +193,7 @@ A clear, ready-to-paste Markdown writeup of the investigation described in *The 
 
 **Explanation:** I submitted the C2 IP (`74.77.74.77`) to the CogNet Scanner view shown in the platform. The detailed scan page enumerates the discovered listening ports along with related service banners and CVEs. The scan summary clearly lists the count of open ports — that number is what the question requests.
 
+**Pictures:**  
 ![CogNet Scanner](card_images/task-10-search.png)  
 ![Detailed Breakdown](card_images/tc-task10.png)
 
@@ -200,6 +209,7 @@ A clear, ready-to-paste Markdown writeup of the investigation described in *The 
 
 **Explanation:** On the C2 scan details page (network information block), the organization field lists the entity that owns or operates the IP. This is the authoritative organizational label shown by the platform for this host.
 
+**Picture:**  
 ![Campaign Graph Entities](card_images/tc-task11.png)
 
 **Answer:** `SenseShield MSP`
@@ -214,6 +224,7 @@ A clear, ready-to-paste Markdown writeup of the investigation described in *The 
 
 **Explanation:** Reviewing the banner output for the service running on port `7477/tcp` in the scan results showed a non-standard banner string. That banner includes a short, quoted phrase that appears intentionally placed (likely an actor signature or taunt). The banner text is shown verbatim below and is the requested flag.
 
+**Picture:**  
 ![Suspicious Banner](card_images/tc-task12.png)
 
 **Answer:** `He's a ghost I carry, not to haunt me, but to hold me together - NULLINC REVENGE`
