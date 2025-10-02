@@ -289,7 +289,6 @@ Event ID **4719** (System audit policy change) indicated that an audit policy mo
 
 **Pictures:**  
 ![Event ID 4719](enduring_images/task14-evidence.png)  
-![Configuring event logs](enduring_images/task14-evidence2.png)  
 ![Configuring event logs](enduring_images/task14-evidence3.png)  
 ![Configuring event logs](enduring_images/task14-evidence4.png)
 
