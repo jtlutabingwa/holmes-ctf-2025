@@ -270,8 +270,6 @@ This location enumerates each `listenaddress/listenport` mapping to `connectaddr
 MITRE ATT&CK documents techniques and sub-techniques. The use of `PortProxy` to forward connections and act as an internal proxy aligns with the **Internal Proxy** category under command-and-control / lateral movement techniques. Looking up the PortProxy / internal proxying technique on the MITRE ATT&CK site maps it to **T1090.001**. This provides a canonical identifier for reporting and defensive coverage mapping.
 
 **Pictures:**  
-![Google Query](enduring_images/task13-evidence.png)  
-![Search Results](enduring_images/task13-evidence2.png)  
 ![ATT&CK ID](enduring_images/task13-evidence3.png)
 
 **Answer:** `T1090.001`
@@ -295,7 +293,9 @@ Event ID **4719** (System audit policy change) indicated that an audit policy mo
 **Answer:**  
 ```cmd
 reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\Audit" /v ProcessCreationIncludeCmdLine_Enabled /t REG_DWORD /d 1 /f
+```
 
 ---
+
 
 **Next challenge writeup:** [Holmes — The Tunnel Without Walls](./holmes_the_tunnel_without_walls.md)
