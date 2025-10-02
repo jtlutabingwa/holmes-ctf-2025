@@ -52,6 +52,10 @@
 
 ---
 
+# The Watchman's Residue — Detailed Writeup (with images)
+
+---
+
 ## 🚩 Flag 1 — IP Address
 
 **Question:** What was the IP address of the decommissioned machine used by the attacker to start a chat session with MSP-HELPDESK-AI?  
