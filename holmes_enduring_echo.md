@@ -46,6 +46,9 @@
   `reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System\Audit" /v ProcessCreationIncludeCmdLine_Enabled /t REG_DWORD /d 1 /f`
 
 ---
+
+## Enduring Echo — Detailed Writeup (with images)
+
 ---
 
 ## 🚩 Flag 1: Initial Command
