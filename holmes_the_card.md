@@ -8,8 +8,7 @@
 - [Greyson Brummer](https://www.linkedin.com/in/greyson-brummer-b82119301/)  
 - [Lansina Diakite](https://www.linkedin.com/in/lansina-diakite-7a673b202/)  
 - [Shaunak Peri](https://www.linkedin.com/in/shaunak-peri-315744245/)
-
-**Ranking**: 634 / 7,085 teams
+- 
 
 **Prompt:** Holmes receives a breadcrumb from Dr. Nicole Vale - fragments from a string of cyber incidents across Cogwork-1. Each lead ends the same way: a digital calling card signed JM.
 
