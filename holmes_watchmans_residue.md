@@ -28,7 +28,7 @@
 
 ---
 
-## 📋 TL;DR (Answers)
+## TL;DR (Answers)
 
 - **Decom machine IP:** `10.0.69.45`
 - **Hostname:** `WATSON-ALPHA-2`
