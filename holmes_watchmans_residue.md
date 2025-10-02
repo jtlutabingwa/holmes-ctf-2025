@@ -1,6 +1,6 @@
 # Holmes CTF 2025: *The Watchman's Residue*
 
-**Author:** Jonathan Lutabingwa ([@jtlutabingwa](https://github.com/jlutabin))
+**Author:** Jonathan Lutabingwa ([@jtlutabingwa](https://github.com/jtlutabingwa))
 
 **Team:** Sherlock's Homies
 - [Jonathan Lutabingwa](https://www.linkedin.com/in/jonathan-lutabingwa/)  
