@@ -1,4 +1,4 @@
-# Holmes CTF 2025: *The Tunnel without Walls*
+# Holmes CTF 2025: *The Tunnel Without Walls*
 **Author:** Jonathan Lutabingwa ([@jtlutabingwa](https://github.com/jlutabin))
 
 **Team:** Sherlock's Homies
