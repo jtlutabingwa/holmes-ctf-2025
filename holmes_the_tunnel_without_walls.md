@@ -34,6 +34,14 @@
 
 ---
 
+**Prompt:** A memory dump from a connected Linux machine reveals covert network connections, fake services, and unusual redirects. Holmes investigates further to uncover how the attacker is manipulating the entire network!
+
+**Summary:** Memory analysis revealed an attacker establishing an SSH foothold, running reconnaissance, escalating via stolen credentials, installing a rootkit from Pastebin, reconfiguring network services, and redirecting software updates to deliver a supply-chain attack.
+
+**🟥 Challenge Difficulty:** *HARD*
+
+---
+
 # Flags & Walkthrough
  
 ---
