@@ -16,7 +16,15 @@
 - 🟩 ["The Enduring Echo"](./holmes_enduring_echo.md)
 - 🟥 ["The Tunnel Without Walls"](./holmes_tunnel_without_walls.md)
 - 🟥 ["The Payload"](./holmes_the_payload.md)
-  
+
+---
+
+**Prompt:** A memory dump from a connected Linux machine reveals covert network connections, fake services, and unusual redirects. Holmes investigates further to uncover how the attacker is manipulating the entire network!
+
+**Summary:** Memory analysis revealed an attacker establishing an SSH foothold, running reconnaissance, escalating via stolen credentials, installing a rootkit from Pastebin, reconfiguring network services, and redirecting software updates to deliver a supply-chain attack.
+
+**🟥 Challenge Difficulty:** *HARD*
+
 ---
 
 ## 📋 TL;DR (Answers)
@@ -34,23 +42,15 @@
 
 ---
 
-**Prompt:** A memory dump from a connected Linux machine reveals covert network connections, fake services, and unusual redirects. Holmes investigates further to uncover how the attacker is manipulating the entire network!
-
-**Summary:** Memory analysis revealed an attacker establishing an SSH foothold, running reconnaissance, escalating via stolen credentials, installing a rootkit from Pastebin, reconfiguring network services, and redirecting software updates to deliver a supply-chain attack.
-
-**🟥 Challenge Difficulty:** *HARD*
-
----
-
 # Flags & Walkthrough
  
 ---
 
 ## 🚩 Flag 1 — Kernel Version  
 **Question:** What is the Linux kernel version of the provided image?  
-**Context:** Identify kernel so correct Volatility profile/symbols can be used.  
+**Context:** Identify the kernel so correct Volatility profile/symbols can be used.  
 **Explanation:**  
-I loaded `memdump.mem` into Volatility3 and ran the `linux.banners` (or `linux.banners`-equivalent) plugin to extract OS/banner strings that the kernel left in memory. Those banner strings commonly include the full kernel release; in this case the banner returned the Debian-style release string. Knowing the exact kernel allows you to select the correct symbol files and avoid false negatives in subsequent memory analysis.  
+I loaded `memdump.mem` into Volatility3 and ran the `linux.banners` (or `linux.banners`-equivalent) plugin to extract OS/banner strings that the kernel left in memory. Those banner strings commonly include the full kernel release; in this case, the banner returned the Debian-style release string. Knowing the exact kernel allows you to select the correct symbol files and avoid false negatives in subsequent memory analysis.  
 **Answer:** `5.10.0-35-amd64`
 
 ---
@@ -128,7 +128,7 @@ Memory contained HTTP download fragments and the portal-supplied update link. Th
 ---
 
 ## 🚩 Flag 10 — Redirect Domain and IP  
-**Question:** Which original domain was redirected and to what IP:port did it point?  
+**Question:** Which original domain was redirected, and to what IP:port did it point?  
 **Context:** Attacker modified DNS/dnsmasq to redirect legitimate updates to a malicious server.  
 **Explanation:**  
 I recovered dnsmasq and temporary config fragments from memory and inspected the content for domain mappings. The config showed that `updates.cogwork-1.net` — the legitimate update domain — was redirected to the attacker-controlled endpoint `13.62.49.86:7477`. Those mappings were present in deleted-temp config fragments and in-memory dnsmasq data structures, showing the exact domain and the redirect target used in the supply-chain step.  
