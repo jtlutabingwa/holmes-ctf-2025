@@ -1,6 +1,6 @@
-# Hack The Box: Holmes-CTF-2025 (09/22/25 - 09/26/25)
+# Holmes CTF 2025: The Card
 
-**Author:** Jonathan Lutabingwa ([@jlutabin](https://github.com/jlutabin))
+**Author:** Jonathan Lutabingwa ([@jtlutabingwa](https://github.com/jlutabin))
 
 **Team:** Sherlock's Homies
 - [Jonathan Lutabingwa](https://www.linkedin.com/in/jonathan-lutabingwa/)  
@@ -8,8 +8,7 @@
 - [Greyson Brummer](https://www.linkedin.com/in/greyson-brummer-b82119301/)  
 - [Lansina Diakite](https://www.linkedin.com/in/lansina-diakite-7a673b202/)  
 - [Shaunak Peri](https://www.linkedin.com/in/shaunak-peri-315744245/)
-
-**Ranking**: 634 / 7,085 teams
+- 
 
 **Prompt:** Holmes receives a breadcrumb from Dr. Nicole Vale - fragments from a string of cyber incidents across Cogwork-1. Each lead ends the same way: a digital calling card signed JM.
 
@@ -36,240 +35,189 @@
 
 ---
 
-## 🚩 Flag 1: First User-Agent
+## The Watchman's Residue — Detailed Writeup (with images)
 
-**Question:** Analyze the provided logs and identify what is the first User-Agent used by the attacker against Nicole Vale's honeypot.  
+A clear, ready-to-paste Markdown writeup of the investigation described in *The Watchman's Residue* challenge. Each flag includes a short context, a slightly expanded explanation (concise but informative), the key log/solution line when applicable, an image that documents the find, and the final answer.
 
-**Walkthrough:** 
-- To find Flag 1, we were asked to look through the logs given to find the "first User-Agent" used by the attacker against the honeypot.
-- This task was simple, and once the logs were downloaded from the provided "Scenario Files" section, we opened the log titled "access.log".
-- Looking at line 1, we can see that the attacker used User-Agent `Lilnunc/4A4D - SpecterEye`.
-- We can deduce that the value for flag 1 is: `Lilnunc/4A4D - SpecterEye`
+---
+
+## 🚩 Flag 1 — First User-Agent
+
+**Question:** What is the first User-Agent used by the attacker against Nicole Vale's honeypot?
+
+**Context:** We begin by inspecting the HTTP access logs from the honeypot to identify the earliest recorded client fingerprint that interacted with the site.
+
+**Explanation:** The `access.log` file contains chronological HTTP requests. The very first entry shows a `GET /robots.txt` request with a distinctive User-Agent string. Because this is the earliest HTTP line in the log and it specifies the client agent directly, it reliably identifies the attacker's initial fingerprint against the honeypot.
+
+**Solution line (from `access.log`):**  
+`2025-05-01 08:23:12 121.36.37.224 - - [01/May/2025:08:23:12 +0000] "GET /robots.txt HTTP/1.1" 200 847 "-" "Lilnunc/4A4D - SpecterEye"`
 
 ![First User Agent](card_images/tc-task1.png)
-**Solution Line of `access.log`:** 
-- `2025-05-01 08:23:12 121.36.37.224 - - [01/May/2025:08:23:12 +0000] "GET /robots.txt HTTP/1.1" 200 847 "-" "Lilnunc/4A4D - SpecterEye"`
 
-**Answer:** `Lilnunc/4A4D - SpecterEye`  
+**Answer:** `Lilnunc/4A4D - SpecterEye`
 
 ---
 
-## 🚩 Flag 2: Web Shell Deployment
+## 🚩 Flag 2 — Web Shell Deployment
 
-**Question:** It appears the threat actor deployed a web shell after bypassing the WAF. What is the file name?  
+**Question:** After bypassing the WAF, what web shell filename was created?
 
-**Walkthrough:** 
-- To find Flag 2, it is another case of looking through the logs.
-- Since this question references the WAF, I naturally figured it would be best to look through `waf.log`
-- A simple `CTRL + F` command searching for "WAF" allowed me to specify which lines contained any information about WAFs, so I started by going line-by-line (as this was a relatively small file).
-- On `2025-05-15 11:25:01` the logs show a "CRITICAL" alert, with a "BYPASS" action (exactly what we are looking for). This line specifies a "Web shell creation detected", so I knew I was on the right track.
-- The following line, at `2025-05-15 11:25:12`, another "BYPASS" action takes place. This log specifies a PHP web shell created, with the name `temp_4A4D.php`. This is the flag for our question.
+**Context:** WAF logs often capture attempts to deploy web shells or note when protections have been bypassed. Hunting `waf.log` for critical bypass events is the quickest route.
+
+**Explanation:** The WAF log contains a `CRITICAL` event labeled `WEBSHELL_DEPLOYMENT` and lists the action as `BYPASS`. That entry explicitly names the created PHP web shell. Because the WAF recorded both the bypass and the resulting creation, this log entry is authoritative for the deployed filename.
+
+**Solution line (from `waf.log`):**  
+`2025-05-15 11:25:12 [CRITICAL] waf.exec - IP 121.36.37.224 - Rule: WEBSHELL_DEPLOYMENT - Action: BYPASS - PHP web shell temp_4A4D.php created`
 
 ![WAF](card_images/tc-task2.png)
-**Solution Line of `waf.log`:** 
-- `2025-05-15 11:25:12 [CRITICAL] waf.exec - IP 121.36.37.224 - Rule: WEBSHELL_DEPLOYMENT - Action: BYPASS - PHP web shell temp_4A4D.php created`
 
-**Answer:** `temp_4A4D.php`  
+**Answer:** `temp_4A4D.php`
 
 ---
 
-## 🚩 Flag 3: Database Exfiltration
+## 🚩 Flag 3 — Database Exfiltration
 
-**Question:** The threat actor also managed to exfiltrate some data. What is the name of the database that was exfiltrated?  
+**Question:** What is the name of the database file that was exfiltrated?
 
-**Walkthrough:** 
-- To find Flag 3, I kept looking through `waf.log`.
-- We are looking for data exfiltration in particular this time, and something had caught my eye from before when I was looking for Flag 2.
-- There is a rule in `waf.log` called "DATA_EXFILTRATION", and looking here was my first instinct.
-- When we look at this line, occurring at `2025-05-15 11:24:34`, it gives an "Unknown Error". This line is illegible in the `waf.log` file, so I cross-checked the timestamps in the `application.log` file.
-- In `application.log`, we can see that at `2025-05-15 11:24:34` there is a "Data exfiltration attempt from 121.36.37.224".
-- The command was given (`'find /var/www -name "*.sql" -o -name "*.tar.gz" -o -name "*.bck"'`), but this didn't help much with finding the name of the database.
-- Next, I tried the third file we were given: `access.log`.
-- We can see that at the same time, the attacker used `"POST /api/v2/debug/exec HTTP/1.1" 200 512 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"`.
-- They probed for backups and dumps; it didn’t give the DB name, but narrowed our search.
-- Looking further in the logs, we see some `GET` commands.
-- The attacker seemingly packed files using a web shell, and then a few logs later, we can see they downloaded the DB dump.
-- **Packing the Files:** `2025-05-18 15:02:34 121.36.37.224 - - [18/May/2025:15:02:34 +0000] "GET /uploads/temp_4A4D.php?cmd=tar%20-czf%20/tmp/exfil_4A4D.tar.gz%20/var/www/html/config/%20/var/log/webapp/ HTTP/1.1" 200 128 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36"`
-- **Downloading the DB:** `2025-05-18 14:58:23 121.36.37.224 - - [18/May/2025:15:58:23 +0000] "GET /uploads/database_dump_4A4D.sql HTTP/1.1" 200 52428800 "-" "4A4D RetrieveR/1.0.0"`
-- In this last line, we can see that there was a 52 MB `.sql` file downloaded.
-- This correlates with the exfiltration, giving us the flag and name of the database file: `database_dump_4A4D.sql`.
+**Context:** After the web shell was in place, the attacker used it to package and download site data. The access log records outgoing GET requests for those packaged files.
+
+**Explanation:** Cross-referencing `waf.log` (which signaled a data exfiltration rule) and the `access.log` shows an attacker-initiated request to download a large `.sql` file. The earlier `find` commands found by the attacker and the web-shell tar command in the logs show the workflow: locate sensitive files → pack them → download the resulting dump. The large 52MB response confirms a full SQL dump was retrieved.
+
+**Solution line (from `access.log`):**  
+`2025-05-18 14:58:23 121.36.37.224 - - [18/May/2025:15:58:23 +0000] "GET /uploads/database_dump_4A4D.sql HTTP/1.1" 200 52428800 "-" "4A4D RetrieveR/1.0.0"`
 
 ![Exfiltration Database](card_images/tc-task3.png)
-**Solution Line of `access.log`:** 
-- `2025-05-18 14:58:23 121.36.37.224 - - [18/May/2025:15:58:23 +0000] "GET /uploads/database_dump_4A4D.sql HTTP/1.1" 200 52428800 "-" "4A4D RetrieveR/1.0.0"`
 
-**Answer:** `database_dump_4A4D.sql`  
+**Answer:** `database_dump_4A4D.sql`
 
 ---
 
-## 🚩 Flag 4: Recurring String
+## 🚩 Flag 4 — Recurring String
 
-**Question:** During the attack, a seemingly meaningless string seems to be recurring. Which one is it?  
+**Question:** Which recurring (seemingly meaningless) string appears throughout the attack artifacts?
 
-**Walkthrough:** 
-- To find the 4th Flag, I moved into my terminal to make the search easier.
-- From the first flag, one string stood out to me. When looking for the "first User-Agent", the solution `Lilnunc/4A4D - SpecterEye` contains the string `4A4D`. This string also appeared in the database dump from the last question, etc.
-- I searched across all of the logs to find anything that wasn't a typical path, header, or filename using the command:
-- `Select-String -Path .\access.log, .\application.log, .\waf.log -Pattern "4A4D" | Format-Table Filename, LineNumber, Line -AutoSize`
-- This search query organized and specified each instance of this unfamiliar string, and proved that it showed up in many situations throughout the attack:
-1. *User-Agent: `Lilnunc/4A4D - SpecterEye`*
-2. *Web shell: `temp_4A4D.php`*
-3. *DB dump: `database_dump_4A4D.sql`*
-4. *Backup: `backup_2025_4A4D.tar.gz`*
-5. *Downloader UA: `4A4D RetrieveR/1.0.0`*
+**Context:** Repeating tokens across different artifacts (User-Agent, filenames, dump names) often indicate a campaign tag or actor indicator.
+
+**Explanation:** I searched all logs for the short token `4A4D` and found it in multiple distinct contexts: the initial User-Agent, the web shell filename, the SQL dump filename, a backup tarball name, and even in a downloader User-Agent. The repetition across different artifact types (UA, filenames, backups, downloader strings) makes `4A4D` a reliable campaign marker and the correct answer.
 
 ![Meaningless String](card_images/tc-task4-logs.png)
--  Funnily enough, the flag for this question happens to be `4A4D`.
 
-**Answer:** `4A4D`  
+**Answer:** `4A4D`
 
 ---
 
-## 🚩 Flag 5: Campaigns Linked
+## 🚩 Flag 5 — Campaigns Linked
 
-**Question:** OmniYard-3 … count how many campaigns appear to be linked to the honeypot attack.  
+**Question:** How many campaigns appear to be linked to the honeypot attack (OmniYard-3)?
 
-**Walkthrough:** 
-- To find the 5th Flag, we navigated to the designated `IP: port` that was given. 
-- Upon opening the `IP: port` in the browser, we were met with a "CogWork-Intel Graph".
-- This graph contained 63 entities and 7 different types.<br>
+**Context:** The CogWork-Intel graph visualizes entity relationships; counting campaign nodes connected to the attacker cluster reveals campaign scope.
+
+**Explanation:** Using the provided `IP:port` feed into the CogWork-Intel graph, I inspected the cluster around the honeypot-linked indicator. The graph displayed several campaign sub-nodes attached to the central actor node. Counting the directly connected campaign nodes (those explicitly labeled as campaigns) yields the total linked campaigns.
 
 ![Campaign Graph](card_images/task-5-chart.png)
-- From this graph, we can see that there is one central node with 5 different sub-nodes stemming from it. We can assume this is the specified honeypot attack.
-- Based on this, the answer to this flag is `5`.
 
-**Answer:** `5`  
+**Answer:** `5`
 
 ---
 
-## 🚩 Flag 6: Tools + Malware
+## 🚩 Flag 6 — Tools + Malware
 
-**Question:** How many tools and malware in total are linked to the previously identified campaigns?  
+**Question:** How many tools and malware samples (total) are linked to the identified campaigns?
 
-**Walkthrough:** 
-- The answer to this flag lies within the same graph that we used for the previous question.<br>
+**Context:** Within the campaign cluster, entities are categorized (e.g., tools vs. malware). Counting all entities of those categories gives the requested total.
+
+**Explanation:** I expanded the five campaign nodes and tallied the entities labeled as *Tools* and *Malware*. The catalogued breakdown showed 4 tool entities and 5 malware entities tied to those campaigns; summing both categories produces the total number of offensive artifacts associated with the actor.
 
 ![Campaign Graph Entities](card_images/task-6-evidence.png)
-- As you can see in the image, there is an "Entity Types" legend that specifies the type of entities that are found in the graph.
-- The question is asking for "tools" and "malware" specifically.
-- If we zoom in on the campaigns surrounding the honeypot (5 campaigns in particular), we can count `4 tools` and `5 malware` used.
-- Adding these together, 4 + 5, gives us our flag: `9`.
 
-**Answer:** `9`  
+**Answer:** `9`
 
 ---
 
-## 🚩 Flag 7: SHA-256 Hash
+## 🚩 Flag 7 — SHA-256 Hash
 
-**Question:** The threat actor has always used the same malware in their campaigns. What is its SHA-256 hash?  
+**Question:** What is the SHA-256 hash of the malware used consistently across campaigns?
 
-**Walkthrough:** 
-- Using the same `IP:port` combo as the previous two questions, this question requires us to look a little deeper into the malware used in the attacks.
-- Searching the graph for `4A4D`, the malware that the attacker has used throughout the campaigns, shows us that there are 11 entities and 3 different types associated.<br>
+**Context:** The graph and indicator pages expose artifact metadata; indicators often include file hash patterns.
 
-
-- Further inspection of this Indicator takes us to the `indicator--vehicle-chaos-hash-2025-0005` page.
-- If we go to the "Details" pane, there is a "Pattern" listed in the properties.
-- The pattern listed is `[file:hashes.SHA256 = '7477c4f5e6d7c8b9a0f1e2d3c4b5a6f7e8d9c0b1a2f3e4d5c6b7a8f9e0d17477']`.
-- If we look deeper into this, there is a SHA256 hash embedded. This is the correct flag for the question.
-- Flag / SHA-256 Hash: `7477c4f5e6d7c8b9a0f1e2d3c4b5a6f7e8d9c0b1a2f3e4d5c6b7a8f9e0d17477`.
+**Explanation:** I followed the indicator entity related to the `4A4D` artifact family to its details page. The indicator’s pattern section included the canonical file hash used to uniquely identify the malware. This value corresponds to the persistent sample seen in multiple campaign linkages.
 
 ![Indicator Hash](card_images/tc-task7.png)
 
-**Answer:** `7477c4f5e6d7c8b9a0f1e2d3c4b5a6f7e8d9c0b1a2f3e4d5c6b7a8f9e0d17477`  
+**Answer:** `7477c4f5e6d7c8b9a0f1e2d3c4b5a6f7e8d9c0b1a2f3e4d5c6b7a8f9e0d17477`
 
 ---
 
-## 🚩 Flag 8: C2 IP Address
+## 🚩 Flag 8 — C2 IP Address
 
-**Question:** Use the CogWork Security Platform to look for the hash and locate the IP address to which the malware connects.  
+**Question:** Using the SHA-256 hash, what IP address does the malware contact?
 
-**Walkthrough:** 
-- Now that we have the SHA-256 value from the previous flag, we are tasked with locating the IP address to which the malware connects.
-- On the "CogWork Security" website that the new `IP: port` took us to, we `CTRL + C` the SHA-256 and then `CTRL + V` into the search query box.
+**Context:** Searching the security platform for the known hash yields enriched telemetry — often including network connections seen in sandboxing or telemetry correlation.
 
-![Search Query SHA-256](card_images/tc-task8-hash-lookup.png)
-- We can see here that this is not only a `Malicious` threat, but the filename also matches the `4A4D` pattern that we have been seeing throughout this activity. This means it is most definitely the correct file.
-- Clicking "View Details" takes us to a more specific breakdown of the file:
+**Explanation:** I pasted the SHA-256 into the CogWork Security search and opened the malware detail page. The enrichment data included observed network callbacks for that sample; the platform listed the primary C2 host observed contacting the sample. That host is the address the malware has been observed to reach out to.
 
+![Search Query SHA-256](card_images/tc-task8-hash-lookup.png)  
 ![View Details SHA-256](card_images/tc-task8.png)
-- We can see here that an HTTPS IP address is given, and after submission, we find out that  this is the correct value.
-- Therefore, the flag (and IP address to which the malware connects) is `74.77.74.77`.
 
-**Answer:** `74.77.74.77`  
+**Answer:** `74.77.74.77`
 
 ---
 
-## 🚩 Flag 9: Persistence File Path
+## 🚩 Flag 9 — Persistence File Path
 
-**Question:** What is the full path of the file that the malware created to ensure its persistence on systems?  
+**Question:** What full file path did the malware create to maintain persistence?
 
-**Walkthrough:** 
-- Continuing off of the previous question, the flag for this question is found right below the last answer.
-- The question is asking for the file path to ensure persistence on systems, and if we scroll down, we see a field titled "File Operations".
+**Context:** Malware behavior pages typically show file-system operations (create, move, modify). The create operation that writes a persistence artifact reveals the path.
+
+**Explanation:** On the file-operations pane of the malware details, I filtered for `CREATE` operations and looked for filenames containing “persist” or similar. The entry showed the artifact written to a Linux-style location under `/opt/...`, which is a common persistence staging place for malicious implants.
 
 ![File Operations](card_images/tc-task9.png)
-- In this section, there are two `CREATE` operations. The first of which has "persistence" in the name.
-- It is safe to assume that this is the correct file path for system persistence.
-- Therefore, the flag (and file path to ensure system persistence) is `/opt/lilnunc/implant/4a4d_persistence.sh`.
 
-**Answer:** `/opt/lilnunc/implant/4a4d_persistence.sh`  
+**Answer:** `/opt/lilnunc/implant/4a4d_persistence.sh`
 
 ---
 
-## 🚩 Flag 10: Open Ports
+## 🚩 Flag 10 — Open Ports
 
-**Question:** CogNet Scanner — how many open ports does the server have?  
+**Question:** According to the CogNet Scanner, how many open ports does the server host?
 
-**Walkthrough:** 
-- For this task, we are given a third and final `IP: port` address and told to use the CogNet Scanner Platform to find more details about the infrastructure of the TA.
+**Context:** The CogNet scan result for the C2 IP returns a list of discovered open TCP/UDP ports in its scan summary.
 
-![CogNet Scanner](card_images/task-10-search.png)
-- Searching the CogNet Scanner Platform with the IP address we found in a previous flag, `74.77.74.77`, returns one single result.
-- This search page contains some open ports and even some vulnerabilities with CVSS scores of 8.8 and 9.7 out of 10. It seems we are dealing with a pretty dangerous target.
-- Clicking on the "Details" button, we are taken to a more in-depth breakdown of the information regarding this target.
-- We can see from this page the number of open ports, which is what this question is asking for.
+**Explanation:** I submitted the C2 IP (`74.77.74.77`) to the CogNet Scanner view shown in the platform. The detailed scan page enumerates the discovered listening ports along with related service banners and CVEs. The scan summary clearly lists the count of open ports — that number is what the question requests.
 
+![CogNet Scanner](card_images/task-10-search.png)  
 ![Detailed Breakdown](card_images/tc-task10.png)
-- Therefore, the flag (and number of open ports) is `11`.
 
-**Answer:** `11`  
+**Answer:** `11`
 
 ---
 
-## 🚩 Flag 11: Organization
+## 🚩 Flag 11 — Organization
 
-**Question:** Which organization does the previously identified IP belong to?  
+**Question:** Which organization is associated with the C2 IP?
 
-**Walkthrough:** 
-- The answer to this flag is right above the number of open ports from the previous question.<br>
+**Context:** The scan and network info in the CogNet tile provide ISP / org metadata derived from WHOIS and passive data sources.
+
+**Explanation:** On the C2 scan details page (network information block), the organization field lists the entity that owns or operates the IP. This is the authoritative organizational label shown by the platform for this host.
 
 ![Campaign Graph Entities](card_images/tc-task11.png)
-- As you can see in the image, under the "Network Information" section, there is a list of information pertaining to this target.
-- This information contains Location, ISP, Organization, and Coordinates.
-- We want to find the organization for this question, which is listed in this section as `SenseShield MSP`.
-- Therefore, the flag (and organization) is `SenseShield MSP`.
 
-**Answer:** `SenseShield MSP`  
+**Answer:** `SenseShield MSP`
 
 ---
 
-## 🚩 Flag 12: Cryptic Banner
+## 🚩 Flag 12 — Cryptic Banner
 
-**Question:** One of the exposed services displays a banner containing a cryptic message. What is it?  
+**Question:** One service banner contains a cryptic message. What does it say?
 
-**Walkthrough:** 
-- Using the same CogNet scan, we can find more information about this target.
-- I navigated to the "Services" tab on the top navigation pane, and was met with more details on some ports and services.
+**Context:** Service banner grabbing on a high-numbered port revealed an odd, human-readable string instead of a standard protocol greeting.
 
-![Services Tab](card_images/tc-task12-services.png)
-- This question is asking for a banner containing a cryptic message, so my thought process was to scroll through until I found something weird or out of the ordinary.
-- Scrolling through the services provided, I found one that stood out: `7477/tcp`.
-- This was an unknown service with an unknown version, running on Port 7477 and using TCP protocol.
+**Explanation:** Reviewing the banner output for the service running on port `7477/tcp` in the scan results showed a non-standard banner string. That banner includes a short, quoted phrase that appears intentionally placed (likely an actor signature or taunt). The banner text is shown verbatim below and is the requested flag.
 
 ![Suspicious Banner](card_images/tc-task12.png)
-- This seemed to be it. The Service Banner displayed was: `He's a ghost I carry, not to haunt me, but to hold me together - NULLINC REVENGE`.
 
-**Answer:** `He's a ghost I carry, not to haunt me, but to hold me together - NULLINC REVENGE`  
+**Answer:** `He's a ghost I carry, not to haunt me, but to hold me together - NULLINC REVENGE`
 
 ---
+
+**Next challenge writeup:** [Holmes — The Watchman's Residue 👮](./holmes_watchmans_residue.md)
