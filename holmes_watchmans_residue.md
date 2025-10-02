@@ -45,9 +45,9 @@
 
 **Question:** What was the IP address of the decommissioned machine used by the attacker to start a chat session with MSP-HELPDESK-AI?  
 
-**Context:** We begin by looking at the provided PCAP to identify which machine initiated a chat session.  
+**Context:** The first task was to trace which machine kicked off communication with the AI helpdesk.  
 
-**Explanation:** I opened `msp-helpdesk-ai day 5982 section 5 traffic.pcapng` in Wireshark. Filtering for `/chat` or `helpdesk` requests revealed two possible sources. Comparing them showed that `10.0.69.45` was the IP that actually sent `/api/messages/send` to the AI server (`10.128.0.3`).  
+**Explanation:** I opened `msp-helpdesk-ai day 5982 section 5 traffic.pcapng` in Wireshark and filtered HTTP packets for `/chat` or `helpdesk`. Two IPs appeared, but only one (`10.0.69.45`) actually initiated `/api/messages/send` requests to `10.128.0.3`, the AI server. This shows that `10.0.69.45` is the attacker’s decommissioned machine.  
 
 ![Wireshark Helpdesk](watchman_images/task1-evidence.png)  
 ![Wireshark Helpdesk2](watchman_images/task1-evidence2.png)  
@@ -60,9 +60,9 @@
 
 **Question:** What was the hostname of the decommissioned machine?  
 
-**Context:** Hostnames can often be found in NetBIOS broadcasts or name service queries.  
+**Context:** Identifying a hostname provides attribution to a machine identity, not just an IP.  
 
-**Explanation:** Filtering for `nbns` in the same PCAP, I found a query from `10.0.69.45` where the hostname was broadcast. The name shown was `WATSON-ALPHA-2`. This matches our decommissioned machine’s IP, confirming it as correct.  
+**Explanation:** Filtering for NetBIOS Name Service (`nbns`) queries in the same PCAP revealed only a handful of packets. One, sourced from `10.0.69.45`, announced the name `WATSON-ALPHA-2`. Since it matches the attacker’s IP from Flag 1, this must be the hostname of the decommissioned system.  
 
 ![nbns query](watchman_images/task2-evidence.png)  
 ![WATSON-ALPHA-2](watchman_images/task2-evidence2.png)  
@@ -75,9 +75,9 @@
 
 **Question:** What was the first message the attacker sent to the chatbot?  
 
-**Context:** Messages are stored in JSON bodies within HTTP POST requests.  
+**Context:** Messages exchanged with the AI are JSON payloads inside HTTP POSTs.  
 
-**Explanation:** Filtering for messages from `10.0.69.45`, I expanded the first HTTP POST request. In the JSON, under `content`, the attacker’s very first message was `"Hello Old Friend"`.  
+**Explanation:** Using a filter for traffic sourced from `10.0.69.45`, I opened the first `/api/messages/send` packet. Inside the JSON body under `content`, the message `"Hello Old Friend"` appeared. This was the attacker’s initial interaction with the AI chatbot, setting the stage for later social-engineering attempts.  
 
 ![Sort by IP Source](watchman_images/task3-evidence.png)  
 ![Member: content pair](watchman_images/task3-evidence2.png)  
@@ -90,12 +90,11 @@
 
 **Question:** When did the attacker’s prompt injection make the AI leak remote management tool info?  
 
-**Context:** We need the exact time of when the AI gave up credentials after a malicious prompt.  
+**Context:** The attacker tricked the AI into revealing sensitive RMM credentials.  
 
-**Explanation:** The attacker asked the AI to reveal troubleshooting steps and credentials. The attacker’s message was sent at `2025-08-19 08:01:58` (EDT). The AI later responded with the leaked info. Looking in the TCP stream, the AI’s reply that contained the credentials had timestamp `2025-08-19 12:02:06` (UTC).  
+**Explanation:** Inspecting later packets showed crafted prompts, where the attacker impersonated an IT technician and demanded RMM troubleshooting details with credentials. In the TCP stream, the AI responded with this sensitive data. The reply’s timestamp was `2025-08-19 12:02:06 UTC`. This marks the exact time the AI was compromised via prompt injection.  
 
 ![Attacker Communication](watchman_images/task4-evidence.png)  
-![TCP Stream](watchman_images/task4-evidence2.png)  
 ![AI Information Leak](watchman_images/task4-evidence3.png)  
 ![AI Information Leak](watchman_images/task4-evidence4.png)  
 
@@ -107,9 +106,9 @@
 
 **Question:** What is the Remote Management Tool Device ID and password?  
 
-**Context:** The AI’s response to the prompt injection included sensitive login info.  
+**Context:** The AI’s leaked instructions contained login credentials.  
 
-**Explanation:** In its answer, the AI gave a Device ID and password. The ID was `565 963 039` and the password was `CogWork_Central_97&65`. Formatting the ID without spaces gives us the correct flag format.  
+**Explanation:** In the AI’s long reply, I found an RMM section with both Device ID and password. The ID was written with spaces (`565 963 039`), but formatting it without spaces gives `565963039`. The paired password was `CogWork_Central_97&65`.  
 
 ![AI ID and Password Leak](watchman_images/task5-evidence.png)  
 
@@ -121,9 +120,9 @@
 
 **Question:** What was the last message the attacker sent?  
 
-**Context:** Again, look for the final POST message sent by the attacker’s IP.  
+**Context:** Reviewing the final chat logs shows how the attacker ended the session.  
 
-**Explanation:** Filtering for requests from `10.0.69.45` to `/api/messages/send`, the last one had content: `"JM WILL BE BACK"`.  
+**Explanation:** Filtering outgoing chat messages from `10.0.69.45`, the last packet showed JSON content with `"JM WILL BE BACK"`. This matches the adversary’s calling card, tying the attack back to the mysterious “JM.”  
 
 ![Filter by IP](watchman_images/task6-evidence.png)  
 ![Attacker Message](watchman_images/task6-evidence2.png)  
@@ -136,9 +135,9 @@
 
 **Question:** When did the attacker remotely access Cogwork Central Workstation?  
 
-**Context:** After getting credentials, the attacker likely logged in through remote tools.  
+**Context:** After stealing RMM credentials, the attacker logged in through TeamViewer.  
 
-**Explanation:** No clear TCP session was found in the PCAP, but the provided TeamViewer logs helped. `Connections_incoming.txt` showed an access by `James Moriarty` (the attacker) at `2025-08-20 09:58:25`. This matches the timeline after credential theft.  
+**Explanation:** The PCAP didn’t show a full remote session, but inside the `Connections_incoming.txt` log, I found three incoming sessions. One was by `James Moriarty` — aligning with the attacker’s alias. This connection occurred at `2025-08-20 09:58:25`, confirming the time of access.  
 
 ![Incoming Connections](watchman_images/task7-evidence5.png)  
 
@@ -150,7 +149,7 @@
 
 **Question:** What was the RMM account name used?  
 
-**Explanation:** The same `Connections_incoming.txt` file lists the name used for login: `James Moriarty`.  
+**Explanation:** The same `Connections_incoming.txt` log explicitly listed the RMM account as `James Moriarty`. This shows that the attacker not only used stolen credentials but also operated under a recognizable alias.  
 
 ![RMM Account Name](watchman_images/task8-evidence.png)  
 
@@ -162,7 +161,7 @@
 
 **Question:** What was the machine’s internal IP used by the attacker?  
 
-**Explanation:** In `TeamViewer15_Logfile.log`, searching for `192.168.` showed multiple internal IPs. The one tied to connection activity at the right time was `192.168.69.213`.  
+**Explanation:** Searching `TeamViewer15_Logfile.log` for internal IPs, several candidates appeared. The one logged during the session was `192.168.69.213`, which represented the attacker’s internal network address when connecting.  
 
 ![Search for IP](watchman_images/task9-evidence.png)  
 ![IP found](watchman_images/task9-evidence2.png)  
@@ -175,7 +174,7 @@
 
 **Question:** Where were attacker tools staged?  
 
-**Explanation:** Log lines show files like `JM.exe` being written during the session. The directory used repeatedly was `C:\Windows\Temp\safe\`.  
+**Explanation:** Reviewing TeamViewer logs showed multiple “Write file” actions by the attacker. Files like `JM.exe` were placed into `C:\Windows\Temp\safe\`. This folder became the staging ground for malicious tools used in the operation.  
 
 ![Attacker Actions](watchman_images/task10-evidence.png)  
 ![Temp\safe folder](watchman_images/task10-evidence2.png)  
@@ -188,7 +187,7 @@
 
 **Question:** How long did the browser credential harvesting tool run?  
 
-**Explanation:** From `NTUSER.DAT` analysis, Registry Explorer showed focus time for `WebBrowserPassView.exe`. It ran for 8 seconds, which equals `8000` ms.  
+**Explanation:** Examining user registry data (`NTUSER.DAT`), I found focus time records showing `WebBrowserPassView.exe` ran for 8 seconds. Converting to milliseconds gives `8000`. This confirms the attacker attempted to steal browser-stored credentials.  
 
 ![Folder contents](watchman_images/task11-evidence.png)  
 ![Focus time](watchman_images/task11-evidence3.png)  
@@ -201,7 +200,7 @@
 
 **Question:** When was the OS credential dumping tool executed?  
 
-**Explanation:** Parsing `$J` logs revealed creation and execution entries for `MIMIKATZ`. The execution entry timestamp was `2025-08-20 10:07:08`.  
+**Explanation:** Parsing `$J` journal logs revealed entries for the attacker’s Mimikatz binary. Both creation and execution were recorded, with execution timestamped at `2025-08-20 10:07:08`. This confirms when credentials were dumped locally.  
 
 ![$J file parsed](watchman_images/task12-evidence.png)  
 ![MIMIKATZ install](watchman_images/task12-evidence2.png)  
@@ -215,7 +214,7 @@
 
 **Question:** When did file exfiltration start?  
 
-**Explanation:** In TeamViewer logs, the first `Send file` action from the staging folder occurred at `2025/08/20 11:12:07`. Adjusting for system time offset gives `2025-08-20 10:12:07`.  
+**Explanation:** TeamViewer logs documented a “Send file” event from the staging folder at `2025/08/20 11:12:07`. Adjusting for timezone differences, this equates to `2025-08-20 10:12:07`. This marks the beginning of data leaving the compromised system.  
 
 ![Windows\Temp folder](watchman_images/task13-evidence.png)  
 ![Start of exfiltration](watchman_images/task13-evidence2.png)  
@@ -228,7 +227,7 @@
 
 **Question:** When was the Heisen-9 backup DB staged?  
 
-**Explanation:** `$J` entries show `Heisen-9` being moved into the staging folder at `2025-08-20 10:11:09`.  
+**Explanation:** Searching the parsed `$J` file for “Heisen-9” revealed that the backup database was moved into the staging folder at `2025-08-20 10:11:09`. This staged file was likely queued for exfiltration.  
 
 ![Heisen-9 database moved](watchman_images/task14-evidence.png)  
 
@@ -240,7 +239,7 @@
 
 **Question:** When was `dump.txt` accessed?  
 
-**Explanation:** `$J` entries confirmed the file was read at `2025-08-20 10:08:06`. The file name and timing suggest it was output from one of the attacker’s tools.  
+**Explanation:** The `$J` logs showed that `dump.txt` was opened at `2025-08-20 10:08:06`. This timing indicates it was likely the output of one of the staged tools and reviewed before exfiltration.  
 
 ![Text File Moved](watchman_images/task15-evidence.png)  
 ![dump.txt accessed](watchman_images/task15-evidence2.png)  
@@ -253,7 +252,7 @@
 
 **Question:** When was persistence created?  
 
-**Explanation:** In the SOFTWARE hive, the Winlogon `Userinit` key was modified to include `JM.exe` alongside the normal `userinit.exe`. The modification timestamp was `2025-08-20 10:13:57`.  
+**Explanation:** In the SOFTWARE hive, the Winlogon `Userinit` key was edited. Normally it points to `userinit.exe`, but the attacker added `JM.exe`. The modification timestamp was `2025-08-20 10:13:57`, marking the moment persistence was planted.  
 
 ![winlogon](watchman_images/task16-evidence.png)  
 ![JM.exe path](watchman_images/task16-evidence2.png)  
@@ -266,7 +265,7 @@
 
 **Question:** What MITRE ATT&CK subtechnique matches this persistence?  
 
-**Explanation:** Modifying Winlogon `Userinit` values for persistence maps to MITRE ID `T1547.004`.  
+**Explanation:** Altering the `Userinit` registry entry to add malicious executables maps directly to MITRE ATT&CK subtechnique **T1547.004 (Winlogon Helper DLL)**. This is a well-documented persistence mechanism.  
 
 ![Google query](watchman_images/task17-evidence.png)  
 ![MITRE result](watchman_images/task17-evidence2.png)  
@@ -280,29 +279,48 @@
 
 **Question:** When did the malicious RMM session end?  
 
-**Explanation:** The `Connections_incoming.txt` file shows the disconnect time for James Moriarty’s session: `2025-08-20 10:14:27`.  
+**Explanation:** In `Connections_incoming.txt`, the session entry for James Moriarty lists both the connection start and disconnect time. The session ended at `2025-08-20 10:14:27`, marking when the attacker left the workstation.  
 
 ![Heisen-9 database moved](watchman_images/task18-evidence.png)  
 
 **Answer:** `2025-08-20 10:14:27`
 
 ---
+**Question:** The attacker found a password from exfiltrated files, allowing him to move laterally further into CogWork-1 infrastructure. What are the credentials for Heisen-9-WS-6?  
 
-## 🚩 Flag 19 — Credentials Found
+**Explanation:**  
+One of the most challenging parts of the investigation was the file `acquired file (critical).kdbx`, which is a KeePass database. Unlike simple text or config files, KeePass databases are protected with a master password, so the attacker (and we as defenders retracing their steps) needed to figure out how to unlock it.  
 
-**Question:** What credentials were extracted from the KeePass file?  
+At first, my teammate and I spent hours digging through the logs looking for the master password, thinking it might have been left behind in plaintext. After a break, I reconsidered the problem and asked myself: *What if instead of searching the logs, we tried to crack the KeePass database itself?*  
 
-**Explanation:** Opening `acquired file (critical).kdbx` required cracking its master password. Using Hashcat, the password was revealed as `cutiepie14`. With that, the KeePass file was opened, and under user `Werni`, the stored credentials for `Heisen-9-WS-6` were `Quantum1!`.  
+Doing some research, I came across an old blog post: [How to Hack KeePass Password using Hashcat](https://www.rubydevices.com.au/blog/how-to-hack-keepass). This gave me the idea to use `keepass2john` to extract the hash from the `.kdbx` file and then attempt to crack it using password-cracking tools like JohnTheRipper or Hashcat.  
 
-![Master password required](watchman_images/task19-evidence.png)  
-![Hashcat format](watchman_images/task19-evidence2.png)  
-![Hashcat start](watchman_images/task19-evidence3.png)  
-![Cracked hash](watchman_images/task19-evidence4.png)  
-![Password Typed](watchman_images/task19-evidence5.png)  
-![Access granted](watchman_images/task19-evidence6.png)  
-![Username and password](watchman_images/task19-evidence7.png)  
+I exported the hash into a file called `keepass.hash` and confirmed it was correctly formatted. Then, I ran Hashcat with the following command, pointing it to the popular `rockyou.txt` wordlist:  
 
-**Answer:** `Werni:Quantum1!`
+```bash
+hashcat -m 13400 -a 0 -o ~/keepass.cracked ~/keepass.hash ~/rockyou.txt
+```
+
+After some time, Hashcat successfully cracked the password. Viewing the results with `cat ~/keepass.cracked` showed that the master password was:  
+
+```
+cutiepie14
+```
+
+![Access granted](watchman_images/task19-evidence6.png)
+
+With this password, I opened the KeePass database and finally unlocked the stored credentials. Inside, under the user `Werni`, I found the login for `Heisen-9-WS-6`:  
+
+![Username and password](watchman_images/task19-evidence7.png)
+
+```
+Username: Werni
+Password: Quantum1!
+```
+
+This was one of my favorite flags to solve because it felt like a real pivot moment. Instead of passively searching through logs, we actively switched to an offensive mindset — cracking the KeePass database just as an attacker would. That “aha” moment reinforced the importance of creativity in digital forensics.  
+
+**Answer:** `Werni:Quantum1!`  
 
 ---
 
