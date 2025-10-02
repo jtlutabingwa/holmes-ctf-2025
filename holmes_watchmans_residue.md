@@ -286,7 +286,7 @@
 **Answer:** `2025-08-20 10:14:27`
 
 ---
-*Question:** The attacker found a password from exfiltrated files, allowing him to move laterally further into CogWork-1 infrastructure. What are the credentials for Heisen-9-WS-6?  
+**Question:** The attacker found a password from exfiltrated files, allowing him to move laterally further into CogWork-1 infrastructure. What are the credentials for Heisen-9-WS-6?  
 
 **Explanation:**  
 One of the most challenging parts of the investigation was the file `acquired file (critical).kdbx`, which is a KeePass database. Unlike simple text or config files, KeePass databases are protected with a master password, so the attacker (and we as defenders retracing their steps) needed to figure out how to unlock it.  
@@ -300,8 +300,6 @@ I exported the hash into a file called `keepass.hash` and confirmed it was corre
 ```bash
 hashcat -m 13400 -a 0 -o ~/keepass.cracked ~/keepass.hash ~/rockyou.txt
 ```
-
-![Hashcat cracking start](file-BQnEZQJtuyizKw2vxqvx31)  
 
 After some time, Hashcat successfully cracked the password. Viewing the results with `cat ~/keepass.cracked` showed that the master password was:  
 
