@@ -1,4 +1,4 @@
-# Holmes CTF 2025: "The Watchman's Residue" 
+# Holmes CTF 2025: *The Watchman's Residue*
 
 **Author:** Jonathan Lutabingwa ([@jtlutabingwa](https://github.com/jlutabin))
 
@@ -49,6 +49,7 @@
 
 **Explanation:** I opened `msp-helpdesk-ai day 5982 section 5 traffic.pcapng` in Wireshark and filtered HTTP packets for `/chat` or `helpdesk`. Two IPs appeared, but only one (`10.0.69.45`) actually initiated `/api/messages/send` requests to `10.128.0.3`, the AI server. This shows that `10.0.69.45` is the attacker’s decommissioned machine.  
 
+**Pictures:**  
 ![Wireshark Helpdesk](watchman_images/task1-evidence.png)  
 ![Wireshark Helpdesk2](watchman_images/task1-evidence2.png)  
 
@@ -64,6 +65,7 @@
 
 **Explanation:** Filtering for NetBIOS Name Service (`nbns`) queries in the same PCAP revealed only a handful of packets. One, sourced from `10.0.69.45`, announced the name `WATSON-ALPHA-2`. Since it matches the attacker’s IP from Flag 1, this must be the hostname of the decommissioned system.  
 
+**Pictures:**  
 ![nbns query](watchman_images/task2-evidence.png)  
 ![WATSON-ALPHA-2](watchman_images/task2-evidence2.png)  
 
@@ -79,6 +81,7 @@
 
 **Explanation:** Using a filter for traffic sourced from `10.0.69.45`, I opened the first `/api/messages/send` packet. Inside the JSON body under `content`, the message `"Hello Old Friend"` appeared. This was the attacker’s initial interaction with the AI chatbot, setting the stage for later social-engineering attempts.  
 
+**Pictures:**  
 ![Sort by IP Source](watchman_images/task3-evidence.png)  
 ![Member: content pair](watchman_images/task3-evidence2.png)  
 
@@ -94,6 +97,7 @@
 
 **Explanation:** Inspecting later packets showed crafted prompts, where the attacker impersonated an IT technician and demanded RMM troubleshooting details with credentials. In the TCP stream, the AI responded with this sensitive data. The reply’s timestamp was `2025-08-19 12:02:06 UTC`. This marks the exact time the AI was compromised via prompt injection.  
 
+**Pictures:**  
 ![Attacker Communication](watchman_images/task4-evidence.png)  
 ![AI Information Leak](watchman_images/task4-evidence3.png)  
 ![AI Information Leak](watchman_images/task4-evidence4.png)  
@@ -110,6 +114,7 @@
 
 **Explanation:** In the AI’s long reply, I found an RMM section with both Device ID and password. The ID was written with spaces (`565 963 039`), but formatting it without spaces gives `565963039`. The paired password was `CogWork_Central_97&65`.  
 
+**Picture:**  
 ![AI ID and Password Leak](watchman_images/task5-evidence.png)  
 
 **Answer:** `565963039:CogWork_Central_97&65`
@@ -124,6 +129,7 @@
 
 **Explanation:** Filtering outgoing chat messages from `10.0.69.45`, the last packet showed JSON content with `"JM WILL BE BACK"`. This matches the adversary’s calling card, tying the attack back to the mysterious “JM.”  
 
+**Pictures:**  
 ![Filter by IP](watchman_images/task6-evidence.png)  
 ![Attacker Message](watchman_images/task6-evidence2.png)  
 
@@ -139,6 +145,7 @@
 
 **Explanation:** The PCAP didn’t show a full remote session, but inside the `Connections_incoming.txt` log, I found three incoming sessions. One was by `James Moriarty` — aligning with the attacker’s alias. This connection occurred at `2025-08-20 09:58:25`, confirming the time of access.  
 
+**Picture:**  
 ![Incoming Connections](watchman_images/task7-evidence5.png)  
 
 **Answer:** `2025-08-20 09:58:25`
@@ -151,6 +158,7 @@
 
 **Explanation:** The same `Connections_incoming.txt` log explicitly listed the RMM account as `James Moriarty`. This shows that the attacker not only used stolen credentials but also operated under a recognizable alias.  
 
+**Picture:**  
 ![RMM Account Name](watchman_images/task8-evidence.png)  
 
 **Answer:** `James Moriarty`
@@ -163,6 +171,7 @@
 
 **Explanation:** Searching `TeamViewer15_Logfile.log` for internal IPs, several candidates appeared. The one logged during the session was `192.168.69.213`, which represented the attacker’s internal network address when connecting.  
 
+**Pictures:**  
 ![Search for IP](watchman_images/task9-evidence.png)  
 ![IP found](watchman_images/task9-evidence2.png)  
 
@@ -176,6 +185,7 @@
 
 **Explanation:** Reviewing TeamViewer logs showed multiple “Write file” actions by the attacker. Files like `JM.exe` were placed into `C:\Windows\Temp\safe\`. This folder became the staging ground for malicious tools used in the operation.  
 
+**Pictures:**  
 ![Attacker Actions](watchman_images/task10-evidence.png)  
 ![Temp\safe folder](watchman_images/task10-evidence2.png)  
 
@@ -189,6 +199,7 @@
 
 **Explanation:** Examining user registry data (`NTUSER.DAT`), I found focus time records showing `WebBrowserPassView.exe` ran for 8 seconds. Converting to milliseconds gives `8000`. This confirms the attacker attempted to steal browser-stored credentials.  
 
+**Pictures:**  
 ![Folder contents](watchman_images/task11-evidence.png)  
 ![Focus time](watchman_images/task11-evidence3.png)  
 
@@ -202,6 +213,7 @@
 
 **Explanation:** Parsing `$J` journal logs revealed entries for the attacker’s Mimikatz binary. Both creation and execution were recorded, with execution timestamped at `2025-08-20 10:07:08`. This confirms when credentials were dumped locally.  
 
+**Pictures:**  
 ![$J file parsed](watchman_images/task12-evidence.png)  
 ![MIMIKATZ install](watchman_images/task12-evidence2.png)  
 ![MIMIKATZ instance](watchman_images/task12-evidence3.png)  
@@ -216,6 +228,7 @@
 
 **Explanation:** TeamViewer logs documented a “Send file” event from the staging folder at `2025/08/20 11:12:07`. Adjusting for timezone differences, this equates to `2025-08-20 10:12:07`. This marks the beginning of data leaving the compromised system.  
 
+**Pictures:**  
 ![Windows\Temp folder](watchman_images/task13-evidence.png)  
 ![Start of exfiltration](watchman_images/task13-evidence2.png)  
 
@@ -229,6 +242,7 @@
 
 **Explanation:** Searching the parsed `$J` file for “Heisen-9” revealed that the backup database was moved into the staging folder at `2025-08-20 10:11:09`. This staged file was likely queued for exfiltration.  
 
+**Picture:**  
 ![Heisen-9 database moved](watchman_images/task14-evidence.png)  
 
 **Answer:** `2025-08-20 10:11:09`
@@ -241,6 +255,7 @@
 
 **Explanation:** The `$J` logs showed that `dump.txt` was opened at `2025-08-20 10:08:06`. This timing indicates it was likely the output of one of the staged tools and reviewed before exfiltration.  
 
+**Pictures:**  
 ![Text File Moved](watchman_images/task15-evidence.png)  
 ![dump.txt accessed](watchman_images/task15-evidence2.png)  
 
@@ -254,6 +269,7 @@
 
 **Explanation:** In the SOFTWARE hive, the Winlogon `Userinit` key was edited. Normally it points to `userinit.exe`, but the attacker added `JM.exe`. The modification timestamp was `2025-08-20 10:13:57`, marking the moment persistence was planted.  
 
+**Pictures:**  
 ![winlogon](watchman_images/task16-evidence.png)  
 ![JM.exe path](watchman_images/task16-evidence2.png)  
 
@@ -267,6 +283,7 @@
 
 **Explanation:** Altering the `Userinit` registry entry to add malicious executables maps directly to MITRE ATT&CK subtechnique **T1547.004 (Winlogon Helper DLL)**. This is a well-documented persistence mechanism.  
 
+**Pictures:**  
 ![Google query](watchman_images/task17-evidence.png)  
 ![MITRE result](watchman_images/task17-evidence2.png)  
 ![Persistence Subtechnique ID](watchman_images/task17-evidence3.png)  
@@ -281,11 +298,14 @@
 
 **Explanation:** In `Connections_incoming.txt`, the session entry for James Moriarty lists both the connection start and disconnect time. The session ended at `2025-08-20 10:14:27`, marking when the attacker left the workstation.  
 
+**Picture:**  
 ![Heisen-9 database moved](watchman_images/task18-evidence.png)  
 
 **Answer:** `2025-08-20 10:14:27`
 
 ---
+## 🚩 Flag 19 
+
 **Question:** The attacker found a password from exfiltrated files, allowing him to move laterally further into CogWork-1 infrastructure. What are the credentials for Heisen-9-WS-6?  
 
 **Explanation:**  
