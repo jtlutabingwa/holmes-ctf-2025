@@ -241,4 +241,4 @@
 
 ---
 
-**Next challenge writeup:** [Holmes — The Watchman's Residue 👮](./holmes_watchmans_residue.md)
+**Next challenge writeup:** [Holmes — The Watchman's Residue](./holmes_watchmans_residue.md)
