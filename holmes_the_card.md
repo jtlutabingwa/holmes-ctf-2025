@@ -45,7 +45,7 @@
 
 ---
 
-## The Watchman's Residue — Detailed Writeup (with images)
+## The Card — Detailed Writeup (with images)
 
 
 ---
