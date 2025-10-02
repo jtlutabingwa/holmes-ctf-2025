@@ -14,7 +14,7 @@
 - 🟩 ["The Card"](./holmes_the_card.md)
 - 🟨 ["The Watchman's Residue"](./holmes_watchmans_residue.md)
 - 🟩 ["The Enduring Echo"](./holmes_enduring_echo.md)
-- 🟥 ["The Tunnel Without Walls"](./holmes_tunnel_without_walls.md)
+- 🟥 ["The Tunnel Without Walls"](./holmes_the_tunnel_without_walls.md)
 - 🟥 ["The Payload"](./holmes_the_payload.md)
 
 ---
