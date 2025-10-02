@@ -284,7 +284,6 @@
 **Explanation:** Altering the `Userinit` registry entry to add malicious executables maps directly to MITRE ATT&CK subtechnique **T1547.004 (Winlogon Helper DLL)**. This is a well-documented persistence mechanism.  
 
 **Pictures:**  
-![Google query](watchman_images/task17-evidence.png)  
 ![MITRE result](watchman_images/task17-evidence2.png)  
 ![Persistence Subtechnique ID](watchman_images/task17-evidence3.png)  
 
