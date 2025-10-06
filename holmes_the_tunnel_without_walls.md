@@ -42,9 +42,9 @@
 
 ---
 
-## Flags & Walkthrough
+## The Tunnel Without Walls — Detailed Writeup
 
- 
+---
 
 ## 🚩 Flag 1 — Kernel Version  
 **Question:** What is the Linux kernel version of the provided image?  
